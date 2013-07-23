@@ -131,22 +131,24 @@ def dir_resource(exec_action)
 end
 
 def authorized_keys_resource(exec_action)
-  # avoid variable scoping issues in resource block
-  ssh_keys = Array(new_resource.ssh_keys)
-
-  r = template "#{@my_home}/.ssh/authorized_keys" do
-    cookbook    'user'
-    source      'authorized_keys.erb'
-    owner       new_resource.username
-    group       Etc.getpwnam(new_resource.username).gid
-    mode        '0600'
-    variables   :user     => new_resource.username,
-                :ssh_keys => ssh_keys,
-                :fqdn     => node['fqdn']
-    action      :nothing
+  if new_resource.ssh_keys.length > 0
+    # avoid variable scoping issues in resource block
+    ssh_keys = Array(new_resource.ssh_keys)
+  
+    r = template "#{@my_home}/.ssh/authorized_keys" do
+      cookbook    'user'
+      source      'authorized_keys.erb'
+      owner       new_resource.username
+      group       Etc.getpwnam(new_resource.username).gid
+      mode        '0600'
+      variables   :user     => new_resource.username,
+                  :ssh_keys => ssh_keys,
+                  :fqdn     => node['fqdn']
+      action      :nothing
+    end
+    r.run_action(exec_action)
+    new_resource.updated_by_last_action(true) if r.updated_by_last_action?
   end
-  r.run_action(exec_action)
-  new_resource.updated_by_last_action(true) if r.updated_by_last_action?
 end
 
 def keygen_resource(exec_action)
