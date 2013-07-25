@@ -27,6 +27,7 @@ def load_current_resource
   @non_unique = bool(new_resource.non_unique, node['user']['non_unique'])
   @create_group = bool(new_resource.create_group, node['user']['create_group'])
   @ssh_keygen = bool(new_resource.ssh_keygen, node['user']['ssh_keygen'])
+  @ssh_keys_keep_existing = bool(new_resource.ssh_keys_keep_existing, node['user']['ssh_keys_keep_existing'])
 end
 
 action :create do
@@ -134,10 +135,30 @@ def authorized_keys_resource(exec_action)
   if new_resource.ssh_keys.length > 0
     # avoid variable scoping issues in resource block
     ssh_keys = Array(new_resource.ssh_keys)
-  
+    ssh_keys_keep_existing = new_resource.ssh_keys_keep_existing
+    
+    authorized_keys_file = "#{@my_home}/.ssh/authorized_keys"
+
+      if  ssh_keys_keep_existing && File.exist?(authorized_keys_file)
+        Chef::Log.info("Keep authorized keys from: #{authorized_keys_file}")
+
+        # Loading existing keys
+        File.open(authorized_keys_file).each do |line|
+          #if line.start_with?("ssh")
+            ssh_keys += Array(line.delete "\n")
+          #end
+        end
+
+        ssh_keys.uniq!
+      end
+    
     r = template "#{@my_home}/.ssh/authorized_keys" do
       cookbook    'user'
-      source      'authorized_keys.erb'
+      if ssh_keys_keep_existing
+        source      'authorized_keys.erb'
+      else
+        source      'authorized_keys.erb'
+      end
       owner       new_resource.username
       group       Etc.getpwnam(new_resource.username).gid
       mode        '0600'
