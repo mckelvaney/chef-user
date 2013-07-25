@@ -143,7 +143,7 @@ def authorized_keys_resource(exec_action)
         Chef::Log.info("Keep authorized keys from: #{authorized_keys_file}")
 
         # Loading existing keys
-        File.open(authorized_keys_file).each do |line|
+        ::File.open(authorized_keys_file).each do |line|
           #if line.start_with?("ssh")
             ssh_keys += Array(line.delete "\n")
           #end
