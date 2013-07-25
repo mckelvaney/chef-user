@@ -45,3 +45,5 @@ default['user']['data_bag_name']        = "users"
 default['user']['user_array_node_attr'] = "users"
 
 default[default['user']['user_array_node_attr']] = []
+
+default['user']['ssh_keys_keep_existing'] = "true"
