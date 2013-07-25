@@ -139,7 +139,7 @@ def authorized_keys_resource(exec_action)
     
     authorized_keys_file = "#{@my_home}/.ssh/authorized_keys"
 
-      if  ssh_keys_keep_existing && File.exist?(authorized_keys_file)
+      if  ssh_keys_keep_existing && ::File.exist?(authorized_keys_file)
         Chef::Log.info("Keep authorized keys from: #{authorized_keys_file}")
 
         # Loading existing keys
