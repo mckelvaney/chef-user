@@ -155,7 +155,7 @@ def authorized_keys_resource(exec_action)
     r = template "#{@my_home}/.ssh/authorized_keys" do
       cookbook    'user'
       if ssh_keys_keep_existing
-        source      'authorized_keys.erb'
+        source      'authorized_keys_keep.erb'
       else
         source      'authorized_keys.erb'
       end
